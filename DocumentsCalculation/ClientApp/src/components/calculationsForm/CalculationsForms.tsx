@@ -47,13 +47,18 @@ export const CalculationsForm: React.FC = (): JSX.Element => {
         data.append(nameof<FormModel>("uploadedFile"), formModel.uploadedFile);
       }
 
-      fetch("/calculate", { method: "POST", body: data });
+      fetch("/documentsCalculation/calculate", { method: "POST", body: data });
     },
-    [FormData]
+    [formModel]
   );
 
   return (
-    <form className={classes.root} autoComplete="off" onSubmit={handleSubmit}>
+    <form
+      encType="multipart/form-data"
+      className={classes.root}
+      autoComplete="off"
+      onSubmit={handleSubmit}
+    >
       <TextField
         required
         label="Currencies and exchange rates"
