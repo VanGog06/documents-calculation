@@ -6,6 +6,6 @@ namespace DocumentsCalculation.Services.Constracts
     {
         IDictionary<string, decimal> PrepareExchangeRates(string currencies);
 
-        KeyValuePair<string, decimal> RetrieveDefaultCurrency(IDictionary<string, decimal> currencies);
+        decimal GetCurrencyExchangeRate(IDictionary<string, decimal> currencies, string currency);
     }
 }

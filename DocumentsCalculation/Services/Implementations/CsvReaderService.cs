@@ -1,4 +1,5 @@
-﻿using DocumentsCalculation.Models;
+﻿using DocumentsCalculation.Exceptions;
+using DocumentsCalculation.Models;
 using DocumentsCalculation.Models.Enums;
 using DocumentsCalculation.Services.Constracts;
 using Microsoft.AspNetCore.Http;
@@ -27,6 +28,16 @@ namespace DocumentsCalculation.Services.Implementations
 
                     bool isValidType = Enum.TryParse(values[3], true, out InvoiceType type);
                     bool isValidTotal = decimal.TryParse(values[6], out decimal total);
+
+                    if (!isValidType)
+                    {
+                        throw new AppException($"Invalid type for customer - {values[0]}");
+                    }
+
+                    if (!isValidTotal)
+                    {
+                        throw new AppException($"Invalid total for customer - {values[0]}");
+                    }
 
                     customerData.Add(new CustomerDataModel
                     {

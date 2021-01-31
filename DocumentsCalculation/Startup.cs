@@ -27,7 +27,7 @@ namespace DocumentsCalculation
 
             services.AddScoped<ICsvReaderService, CsvReaderService>();
             services.AddScoped<ICurrencyService, CurrencyService>();
-            services.AddScoped<ICalculationService, CalculationServce>();
+            services.AddScoped<ICalculationService, CalculationService>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

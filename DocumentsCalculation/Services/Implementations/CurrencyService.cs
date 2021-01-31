@@ -1,7 +1,7 @@
-﻿using DocumentsCalculation.Services.Constracts;
+﻿using DocumentsCalculation.Exceptions;
+using DocumentsCalculation.Services.Constracts;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 
 namespace DocumentsCalculation.Services.Implementations
 {
@@ -18,6 +18,11 @@ namespace DocumentsCalculation.Services.Implementations
                 string currency = currencyPair[0].ToLower();
                 bool isValidCurrency = decimal.TryParse(currencyPair[1], NumberStyles.Currency, CultureInfo.InvariantCulture, out decimal exchangeRate);
 
+                if (!isValidCurrency)
+                {
+                    throw new AppException($"Invalid exchange rate for {currency}");
+                }
+
                 if (isValidCurrency)
                 {
                     exchangeRates.Add(currency, exchangeRate);
@@ -27,7 +32,14 @@ namespace DocumentsCalculation.Services.Implementations
             return exchangeRates;
         }
 
-        public KeyValuePair<string, decimal> RetrieveDefaultCurrency(IDictionary<string, decimal> currencies)
-            => currencies.SingleOrDefault(c => c.Value == 1M);
+        public decimal GetCurrencyExchangeRate(IDictionary<string, decimal> currencies, string currency)
+        {
+            if (!currencies.ContainsKey(currency.ToLower()))
+            {
+                throw new AppException($"Currency {currency} does not exist.");
+            }
+
+            return currencies[currency.ToLower()];
+        }
     }
 }

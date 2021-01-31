@@ -1,6 +1,7 @@
 ﻿using DocumentsCalculation.Models;
 using DocumentsCalculation.Services.Constracts;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DocumentsCalculation.Controllers
@@ -17,11 +18,11 @@ namespace DocumentsCalculation.Controllers
         }
 
         [HttpPost("calculate")]
-        public async Task<ActionResult> CalculateInvoice([FromForm] CalculateInvoiceInputModel input)
+        public async Task<ActionResult<IEnumerable<CalculateInvoiceOutputModel>>> CalculateInvoice([FromForm] CalculateInvoiceInputModel input)
         {
-            var asd = await this.calculationService.CalculateDocumentsAsync(input);
+            IEnumerable<CalculateInvoiceOutputModel> result = await this.calculationService.CalculateDocumentsAsync(input);
 
-            return Ok(asd);
+            return Ok(result);
         }
     }
 }

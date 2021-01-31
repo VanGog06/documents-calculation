@@ -21,9 +21,10 @@ export const CalculationsForm: React.FC = (): JSX.Element => {
 
   const handleInputChange = useCallback(
     (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
+      setCalculatedInvoice([]);
       setFormModel({ ...formModel, [event.target.name]: event.target.value });
     },
-    [formModel, setFormModel]
+    [formModel, setFormModel, setCalculatedInvoice]
   );
 
   const handleFileUpload = useCallback(
@@ -31,9 +32,10 @@ export const CalculationsForm: React.FC = (): JSX.Element => {
       const file: File | undefined = event.target.files
         ? event.target.files[0]
         : undefined;
+      setCalculatedInvoice([]);
       setFormModel({ ...formModel, uploadedFile: file });
     },
-    [formModel, setFormModel]
+    [formModel, setFormModel, setCalculatedInvoice]
   );
 
   const handleSubmit = useCallback(
