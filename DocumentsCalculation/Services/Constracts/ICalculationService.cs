@@ -1,10 +1,11 @@
 ﻿using DocumentsCalculation.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DocumentsCalculation.Services.Constracts
 {
     public interface ICalculationService
     {
-        Task<string> CalculateDocumentsAsync(CalculateInvoiceInputModel input);
+        Task<IEnumerable<CalculateInvoiceOutputModel>> CalculateDocumentsAsync(CalculateInvoiceInputModel input);
     }
 }

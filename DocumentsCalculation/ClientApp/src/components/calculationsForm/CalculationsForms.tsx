@@ -1,7 +1,8 @@
 import React, { ChangeEvent, useCallback, useState } from 'react';
 
-import { Button, TextField } from '@material-ui/core';
+import { Button, List, ListItemText, TextField } from '@material-ui/core';
 
+import { CalculatedInvoiceModel } from '../../models/CalculatedInvoiceModel';
 import { FormModel } from '../../models/FormModel';
 import { nameof } from '../../utility/nameof';
 import { useCalculationsFormStyles } from './useCalculationsFormStyles';
@@ -14,6 +15,9 @@ export const CalculationsForm: React.FC = (): JSX.Element => {
     outputCurrency: "",
     uploadedFile: undefined,
   });
+  const [calculatedInvoice, setCalculatedInvoice] = useState<
+    CalculatedInvoiceModel[]
+  >([]);
 
   const handleInputChange = useCallback(
     (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
@@ -33,7 +37,7 @@ export const CalculationsForm: React.FC = (): JSX.Element => {
   );
 
   const handleSubmit = useCallback(
-    (event: React.FormEvent<HTMLFormElement>): void => {
+    async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
       event.preventDefault();
 
       const data: FormData = new FormData();
@@ -47,9 +51,17 @@ export const CalculationsForm: React.FC = (): JSX.Element => {
         data.append(nameof<FormModel>("uploadedFile"), formModel.uploadedFile);
       }
 
-      fetch("/documentsCalculation/calculate", { method: "POST", body: data });
+      const response: Response = await fetch(
+        "/documentsCalculation/calculate",
+        {
+          method: "POST",
+          body: data,
+        }
+      );
+      const calculationResult: CalculatedInvoiceModel[] = await response.json();
+      setCalculatedInvoice(calculationResult);
     },
-    [formModel]
+    [formModel, setCalculatedInvoice]
   );
 
   return (
@@ -99,6 +111,15 @@ export const CalculationsForm: React.FC = (): JSX.Element => {
       <Button variant="contained" color="primary" type="submit">
         Calculate
       </Button>
+
+      <List>
+        {calculatedInvoice.map((ci) => (
+          <ListItemText
+            key={ci.customer}
+            primary={`${ci.customer} - ${formModel.outputCurrency} ${ci.total}`}
+          />
+        ))}
+      </List>
     </form>
   );
 };

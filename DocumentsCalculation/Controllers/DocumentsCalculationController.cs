@@ -19,9 +19,9 @@ namespace DocumentsCalculation.Controllers
         [HttpPost("calculate")]
         public async Task<ActionResult> CalculateInvoice([FromForm] CalculateInvoiceInputModel input)
         {
-            await this.calculationService.CalculateDocumentsAsync(input);
+            var asd = await this.calculationService.CalculateDocumentsAsync(input);
 
-            return Ok();
+            return Ok(asd);
         }
     }
 }

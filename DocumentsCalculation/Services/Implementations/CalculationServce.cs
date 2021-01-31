@@ -18,19 +18,20 @@ namespace DocumentsCalculation.Services.Implementations
             this.currencyService = currencyService;
         }
 
-        public async Task<string> CalculateDocumentsAsync(CalculateInvoiceInputModel input)
+        public async Task<IEnumerable<CalculateInvoiceOutputModel>> CalculateDocumentsAsync(CalculateInvoiceInputModel input)
         {
-            ICollection<CustomerDataModel> customerData = await this.csvReaderService.ReadCsvAsync(input.UploadedFile);
-
             IDictionary<string, decimal> currencies = this.currencyService.PrepareExchangeRates(input.Currencies);
             KeyValuePair<string, decimal> defaultCurrency = this.currencyService.RetrieveDefaultCurrency(currencies);
 
-            this.CalculateInvoice(customerData, currencies, defaultCurrency);
+            ICollection<CustomerDataModel> customerData = await this.csvReaderService.ReadCsvAsync(input.UploadedFile);
 
-            return "";
+            IEnumerable<CalculateInvoiceOutputModel> calculatedInvoices = this.CalculateInvoice(customerData, currencies, defaultCurrency);
+
+            return calculatedInvoices;
         }
 
-        private void CalculateInvoice(ICollection<CustomerDataModel> customerData, IDictionary<string, decimal> currencies, KeyValuePair<string, decimal> defaultCurrency)
+        private IEnumerable<CalculateInvoiceOutputModel> CalculateInvoice(ICollection<CustomerDataModel> customerData,
+            IDictionary<string, decimal> currencies, KeyValuePair<string, decimal> defaultCurrency)
         {
             IDictionary<string, decimal> result = new Dictionary<string, decimal>();
 
@@ -66,7 +67,11 @@ namespace DocumentsCalculation.Services.Implementations
                 }
             }
 
-            System.Console.WriteLine();
+            return result.Select(r => new CalculateInvoiceOutputModel
+            {
+                Customer = r.Key,
+                Total = r.Value
+            });
         }
     }
 }
