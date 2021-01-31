@@ -1,10 +1,14 @@
 import React, { ChangeEvent, useCallback, useState } from 'react';
 
-import { Button, List, ListItemText, TextField } from '@material-ui/core';
+import { Button, TextField } from '@material-ui/core';
 
 import { CalculatedInvoiceModel } from '../../models/CalculatedInvoiceModel';
+import { CalculationResultModel } from '../../models/CalculationResultModel';
+import { DataState } from '../../models/DataState';
 import { FormModel } from '../../models/FormModel';
+import { CalculationService } from '../../services/CalculationService';
 import { nameof } from '../../utility/nameof';
+import { CalculationResult } from '../calculationResult/CalculationResult';
 import { useCalculationsFormStyles } from './useCalculationsFormStyles';
 
 export const CalculationsForm: React.FC = (): JSX.Element => {
@@ -15,16 +19,25 @@ export const CalculationsForm: React.FC = (): JSX.Element => {
     outputCurrency: "",
     uploadedFile: undefined,
   });
-  const [calculatedInvoice, setCalculatedInvoice] = useState<
-    CalculatedInvoiceModel[]
-  >([]);
+  const [
+    calculationResult,
+    setCalculationResult,
+  ] = useState<CalculationResultModel>({
+    state: DataState.idle,
+    calculatedInvoice: [],
+    error: "",
+  });
 
   const handleInputChange = useCallback(
     (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
-      setCalculatedInvoice([]);
+      setCalculationResult({
+        ...calculationResult,
+        calculatedInvoice: [],
+        state: DataState.idle,
+      });
       setFormModel({ ...formModel, [event.target.name]: event.target.value });
     },
-    [formModel, setFormModel, setCalculatedInvoice]
+    [formModel, calculationResult, setFormModel, setCalculationResult]
   );
 
   const handleFileUpload = useCallback(
@@ -32,38 +45,43 @@ export const CalculationsForm: React.FC = (): JSX.Element => {
       const file: File | undefined = event.target.files
         ? event.target.files[0]
         : undefined;
-      setCalculatedInvoice([]);
+
+      setCalculationResult({
+        ...calculationResult,
+        calculatedInvoice: [],
+        state: DataState.idle,
+      });
       setFormModel({ ...formModel, uploadedFile: file });
     },
-    [formModel, setFormModel, setCalculatedInvoice]
+    [formModel, calculationResult, setFormModel, setCalculationResult]
   );
 
   const handleSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
       event.preventDefault();
+      setCalculationResult((prevResult) => ({
+        ...prevResult,
+        state: DataState.pending,
+      }));
 
-      const data: FormData = new FormData();
-      data.append(nameof<FormModel>("currencies"), formModel.currencies);
-      data.append(nameof<FormModel>("customer"), formModel.customer);
-      data.append(
-        nameof<FormModel>("outputCurrency"),
-        formModel.outputCurrency
-      );
-      if (formModel.uploadedFile) {
-        data.append(nameof<FormModel>("uploadedFile"), formModel.uploadedFile);
+      try {
+        const calculationResult: CalculatedInvoiceModel[] = await CalculationService.calculateDocuments(
+          formModel
+        );
+        setCalculationResult((prevResult) => ({
+          ...prevResult,
+          state: DataState.completed,
+          calculatedInvoice: calculationResult,
+        }));
+      } catch (err) {
+        setCalculationResult((prevResult) => ({
+          ...prevResult,
+          state: DataState.error,
+          error: err.message || err.title,
+        }));
       }
-
-      const response: Response = await fetch(
-        "/documentsCalculation/calculate",
-        {
-          method: "POST",
-          body: data,
-        }
-      );
-      const calculationResult: CalculatedInvoiceModel[] = await response.json();
-      setCalculatedInvoice(calculationResult);
     },
-    [formModel, setCalculatedInvoice]
+    [formModel, setCalculationResult]
   );
 
   return (
@@ -103,7 +121,7 @@ export const CalculationsForm: React.FC = (): JSX.Element => {
           onChange={handleFileUpload}
         />
         <label htmlFor="contained-button-file">
-          <Button variant="contained" color="primary" component="span">
+          <Button variant="contained" component="span">
             Upload
           </Button>
         </label>
@@ -114,14 +132,10 @@ export const CalculationsForm: React.FC = (): JSX.Element => {
         Calculate
       </Button>
 
-      <List>
-        {calculatedInvoice.map((ci) => (
-          <ListItemText
-            key={ci.customer}
-            primary={`${ci.customer} - ${formModel.outputCurrency} ${ci.total}`}
-          />
-        ))}
-      </List>
+      <CalculationResult
+        calculationResult={calculationResult}
+        outputCurrency={formModel.outputCurrency}
+      />
     </form>
   );
 };

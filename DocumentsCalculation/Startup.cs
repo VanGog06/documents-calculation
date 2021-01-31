@@ -57,7 +57,7 @@ namespace DocumentsCalculation
             app.UseRouting();
 
             // Global error handler
-            app.UseMiddleware<ErrorHandlerMiddleware>();
+            // app.UseMiddleware<ErrorHandlerMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
