@@ -2,6 +2,7 @@
 using DocumentsCalculation.Models;
 using DocumentsCalculation.Models.Enums;
 using DocumentsCalculation.Services.Constracts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -81,8 +82,8 @@ namespace DocumentsCalculation.Services.Implementations
             return result.Select(r => new CalculateInvoiceOutputModel
             {
                 Customer = r.Key,
-                Total = r.Value
-            });
+                Total = Math.Round(r.Value, 2, MidpointRounding.ToEven)
+            }); ;
         }
 
         private bool CheckIfParentDocumentExists(ICollection<CustomerDataModel> customerData, string parentDocument, string customer)
