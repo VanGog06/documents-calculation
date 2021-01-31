@@ -1,3 +1,4 @@
+using DocumentsCalculation.Exceptions;
 using DocumentsCalculation.Services.Constracts;
 using DocumentsCalculation.Services.Implementations;
 using Microsoft.AspNetCore.Builder;
@@ -54,6 +55,9 @@ namespace DocumentsCalculation
             app.UseSpaStaticFiles();
 
             app.UseRouting();
+
+            // Global error handler
+            app.UseMiddleware<ErrorHandlerMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
