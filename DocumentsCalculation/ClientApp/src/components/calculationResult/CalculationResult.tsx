@@ -22,7 +22,7 @@ export const CalculationResult: React.FC<ICalculationResultProps> = ({
         {calculatedInvoice.map((ci) => (
           <ListItemText
             key={ci.customer}
-            primary={`${ci.customer} - ${outputCurrency} ${ci.total}`}
+            primary={`${ci.customer} - ${ci.total} ${outputCurrency}`}
           />
         ))}
       </List>

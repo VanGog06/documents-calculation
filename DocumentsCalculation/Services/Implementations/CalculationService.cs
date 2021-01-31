@@ -73,7 +73,7 @@ namespace DocumentsCalculation.Services.Implementations
                 {
                     result[data.Customer] += total;
                 }
-                else
+                else if (data.Type == InvoiceType.CreditNote)
                 {
                     result[data.Customer] -= total;
                 }
